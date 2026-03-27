@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>AraFlow | Calculeren op de werf. Factureren in seconden.</title>
+    <meta name="description" content="Dé slimme administratie-tool voor de moderne vakman. Bereken je prijs op de werf, maak werkbonnen en factureer in seconden.">
+    <meta name="author" content="Arne Raes - AraTechnics">
+    <link rel="icon" type="image/png" href="/assets/AraFlow-Logo-min.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,700;0,900;1,900&display=swap" rel="stylesheet">
+
+    <style>
+        /* === CUSTOM VARIABELEN (Jouw 'Zach Yadegari' palet) === */
+        :root {
+            --brand-neon: #10b981; /* emerald-400 */
+            --brand-dark: #059669; /* emerald-600 */
+            --badge-bg: #02180f;
+            --badge-border: #043622;
+            --zinc-400: #a1a1aa;
+            --zinc-500: #71717a;
+            --zinc-600: #52525b;
+            --zinc-900: #18181b;
+        }
+
+        /* === ALGEMENE RESET & BASIS STIJLEN === */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            -webkit-user-select: none;
+            user-select: none;
+            cursor: default;
+        }
+        ::selection { background-color: var(--brand-neon); color: black; }
+        a { color: inherit; text-decoration: none; }
+        button, input { font-family: inherit; }
+        
+        /* === LAYOUT CONTAINERS === */
+        .page-wrapper {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .header {
+            position: absolute; top: 0; left: 0; width: 100%;
+            padding: 1.5rem 2rem; z-index: 50;
+        }
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 6rem 1.5rem 3rem; /* Meer padding boven voor header */
+            width: 100%;
+            max-width: 80rem; /* 1280px */
+            margin: 0 auto;
+        }
+        .footer {
+            width: 100%;
+            margin-top: 3rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            background-color: #030303;
+            padding: 2rem 0;
+            z-index: 10;
+        }
+        .container {
+            width: 100%;
+            max-width: 80rem; /* 1280px */
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        /* === COMPONENTEN STIJLEN === */
+        .logo { font-size: 1.5rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; }
+        .logo-accent { color: var(--brand-neon); }
+
+        .top-badge {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            padding: 0.375rem 0.75rem; border-radius: 9999px;
+            background-color: var(--badge-bg); border: 1px solid var(--badge-border);
+            margin-bottom: 2rem;
+        }
+        .top-badge svg { width: 0.75rem; height: 0.75rem; color: var(--brand-neon); }
+        .top-badge span { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.2em; color: var(--brand-neon); }
+        
+        .hoofdtitel {
+            font-size: 4.5rem; /* Fallback voor grote schermen */
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: -0.05em; /* tracking-tighter */
+            margin-bottom: 2rem;
+            width: 100%;
+        }
+        .hoofdtitel .line-1 { display: block; margin-bottom: 0.5rem; color: #fff; }
+        .hoofdtitel .line-2 { display: block; color: var(--brand-neon); }
+
+        .ondertitel {
+            font-size: 1.125rem; /* text-lg */
+            color: var(--zinc-400);
+            font-weight: 500; /* font-medium */
+            margin-bottom: 3rem;
+            max-width: 48rem; /* max-w-3xl */
+            line-height: 1.6; /* leading-relaxed */
+        }
+        .ondertitel .highlight {
+            color: #fff;
+            font-weight: 700;
+            text-decoration: underline;
+            text-decoration-color: var(--brand-neon);
+            text-decoration-thickness: 2px;
+            text-underline-offset: 4px;
+        }
+
+        .form-wrapper { width: 100%; max-width: 42rem; margin: 0 auto; position: relative; margin-bottom: 2rem; }
+        .form-container {
+            background-color: #050505;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 1.5rem; /* rounded-2xl */
+            padding: 0.5rem;
+            transition: box-shadow 0.3s ease;
+            box-shadow: 0 0 50px rgba(52, 211, 153, 0.08);
+        }
+        .form-container:focus-within { box-shadow: 0 0 70px rgba(52, 211, 153, 0.15); }
+        .form-container form { display: flex; gap: 0.5rem; }
+        .form-container input[type="email"] {
+            flex-grow: 1; background: transparent; padding: 1rem 1.5rem;
+            border-radius: 1rem; outline: none; border: none;
+            color: #fff; font-weight: 700; font-size: 1rem;
+        }
+        .form-container input[type="email"]::placeholder { color: var(--zinc-600); font-weight: 500; }
+        .form-container button {
+            background-color: #10b981;
+            color: #011c12; font-weight: 900;
+            text-transform: uppercase; font-style: italic; letter-spacing: 0.05em;
+            padding: 1rem 2rem; border-radius: 0.75rem; cursor: pointer;
+            transition: background-color 0.2s ease; border: none;
+        }
+        .form-container button:hover { background-color: #035a3b; }
+
+        .success-message {
+            padding: 1.5rem 0; text-align: center; display: none;
+            background-color: #050505; border: 1px solid rgba(52, 211, 153, 0.2);
+            border-radius: 1.5rem;
+        }
+        .success-message .title { color: var(--brand-neon); font-weight: 900; font-size: 1.25rem; text-transform: uppercase; }
+        .success-message .subtitle { color: var(--zinc-400); font-size: 0.875rem; margin-top: 0.5rem; font-weight: 500; }
+
+        .akkoord{
+            color: var(--zinc-400);
+            margin-top: 10px;
+            margin-bottom: -20px;
+            font-size: 12px;
+        }
+        .akkoord a{
+            text-decoration: underline;
+        }
+        
+        .scarcity-badge {
+            display: inline-flex; align-items: center; gap: 0.75rem;
+            padding: 0.625rem 1.25rem; border-radius: 9999px;
+            background-color: #111; border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .scarcity-badge .pulse { width: 0.5rem; height: 0.5rem; border-radius: 50%; background-color: #dc2626; animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .scarcity-badge .text { font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.15em; color: var(--zinc-500); }
+        .scarcity-badge .highlight-text { color: #fff; margin: 0 0.25rem; }
+
+        /* === FOOTER STIJLEN === */
+        .footer-inner { display: flex; flex-direction: column; align-items: center; gap: 2rem; }
+        .footer-top { width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: space-between; gap: 2rem; }
+        .footer-contact { text-align: center; }
+        .footer-contact .label { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: var(--zinc-600); }
+        .footer-contact .email { color: #fff; font-size: 1rem; font-weight: 700; transition: color 0.2s ease; display: block; margin-top: 2px; }
+        .footer-contact .email:hover { color: var(--brand-neon); }
+        
+        .socials { display: flex; align-items: center; gap: 0.75rem; margin-top: 10px; margin-bottom: 12px; }
+        .socials .label { display: none; }
+        .socials a {
+            width: 3rem; height: 3rem; border-radius: 50%; background-color: var(--zinc-900);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--zinc-400); transition: all 0.2s ease; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .socials a:hover { color: #fff; border-color: var(--brand-neon); background-color: rgba(52, 211, 153, 0.1); }
+        .socials svg { width: 1.25rem; height: 1.25rem; }
+
+        .footer-bottom {
+            font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.2em;
+            color: var(--zinc-600); padding-top: 1.5rem; border-top: 1px solid rgba(255, 255, 255, 0.05);
+            width: 100%; text-align: center;
+        }
+        .footer-bottom a {
+            color: var(--brand-neon); text-decoration: underline; text-underline-offset: 4px;
+            text-decoration-color: rgba(52, 211, 153, 0.3); transition: color 0.2s ease;
+        }
+        .footer-bottom a:hover { color: #fff; }
+
+        /* === RESPONSIVE BREAKPOINTS === */
+        @media (min-width: 768px) { /* Tablets en groter */
+            .footer-top { flex-direction: row; }
+            .footer-contact { text-align: left;}
+            .socials-wrapper { align-items: flex-end; }
+            .socials .label { display: block; font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: var(--zinc-600); text-align: right; }
+        }
+        
+        @media (max-width: 767px) { /* Mobiele telefoons */
+            .hoofdtitel { font-size: 2.5rem; line-height: 1.1; }
+            .ondertitel { font-size: 1rem; }
+            .form-container form { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-wrapper">
+        <header class="header">
+            <p class="logo">ARA<span class="logo-accent">FLOW</span></p>
+        </header>
+
+        <main class="main-content">
+            <div class="top-badge">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
+                <span>BINNENKORT BESCHIKBAAR</span>
+            </div>
+
+            <h1 class="hoofdtitel">
+                <span class="line-1">CALCULEREN OP DE WERF.</span>
+                <span class="line-2">FACTUREREN IN SECONDEN.</span>
+            </h1>
+            
+            <p class="ondertitel">
+                De eerste tool die begrijpt hoe een vakman werkt. Stop met het verliezen van al jouw papieren. Claim je plek als Founding Member en krijg <span class="highlight">1ste jaar 30% korting</span>.
+            </p>
+
+            <div class="form-wrapper">
+                
+                <script>var submitted = false;</script>
+                <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;" onload="if(submitted) { document.getElementById('form_container').style.display='none'; document.getElementById('success_message').style.display='block'; }"></iframe>
+                
+                <div id="form_container" class="form-container">
+                    <form action="https://docs.google.com/forms/d/e/1FAIpQLScDBAh9Z0HPP_DJDWhzBRLJKYpshK8OwGQgdbXhc1DhJ_8-MA/formResponse" method="post" target="hidden_iframe" onsubmit="submitted=true;">
+                        <input type="email" name="entry.524408414" required placeholder="jouw@email.com">
+                        <button type="submit">CLAIM PLEK</button>
+                    </form>
+                </div>
+
+                <div id="success_message" class="success-message">
+                    <p class="title">Plek Geclaimd!</p>
+                    <p class="subtitle">Je hoort van ons bij de lancering.</p>
+                </div>
+
+                <p class="akkoord"> Door op "claim plek" te drukken ga je akkoord met de <a href="/privacy.html"> privacy</a> en <a href="/terms.html"> terms</a></p>
+                
+            </div>
+
+            <div class="scarcity-badge">
+                <span class="pulse"></span>
+                <span class="text">NOG MAAR <span class="highlight-text">ENKELE</span> PLEKKEN BESCHIKBAAR</span>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <div class="container">
+                <div class="inner">
+                    <div class="footer-top">
+                        <div class="footer-contact">
+                            <span class="label">Heb je een vraag?</span>
+                            <a href="mailto:info@araflow.app" class="email">info@araflow.app</a>
+                        </div>
+                        <div class="socials-wrapper">
+                            <span class="label">Volg de ontwikkeling</span>
+                            <div class="socials">
+                                <a href="https://www.instagram.com/araflow.app" target="_blank" title="Instagram">
+                                    <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4s1.791-4 4-4 4 1.79 4 4-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                                </a>
+                                <a href="https://www.facebook.com/profile.php?id=61579510656608#" target="_blank" title="Facebook">
+                                    <svg fill="currentColor" viewBox="0 0 24 24"><path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"/></svg>
+                                </a>
+                                <a href="https://www.tiktok.com/@araflow.app" target="_blank" title="TikTok">
+                                    <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="footer-bottom">
+                        <div style="margin-bottom: 12px;">
+                            MADE BY <a href="https://aratechnics.be" target="_blank">ARATECHNICS</a>
+                        </div>
+                        <div style="display: flex; justify-content: center; gap: 24px; margin-top: 8px;">
+                            <a href="/privacy.html" style="color: #676767; font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.2em; transition: color 0.2s;">PRIVACY</a>
+                            <a href="/terms.html" style="color: #676767; font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.2em; transition: color 0.2s;">VOORWAARDEN</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>
